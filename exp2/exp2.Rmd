@@ -1,0 +1,450 @@
+---
+title: "Statistical analysis for Myslyvyi & Braun (2026), Experiment 2"
+date: April 2026
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: true
+authors: Klymentii Myslyvyi, Bettina Braun
+---
+
+Experiment 2 is a visual-world eye-tracking paradigm with four printed words displayed on the screen (cf. McQueen and Viebahn, 2007; Tanenhaus et al., 1995), of which one is auditorily presented. In critical trials, the display contained two trisyllabic cohort competitors that differed in stress placement: an SWW competitor (e.g. LI.be.ro ‘sweeper’) and a WSW target (e.g. Li.BE.lle ‘dragonfly’), alongside two unrelated distractor words. We manipulated the pitch accent on the target word (either carrying an early-peak accent, H+L\* or a medial-peak accent, L+H\*). The following analysis closely followed Zahner et al., Experiment 2 (2019).
+
+# Preprocessing
+
+Load libraries.
+
+```{r, message=FALSE}
+library(ggplot2)
+library(lme4)
+library(car)
+library(dplyr)
+library(mgcv)
+library(VWPre)
+library(itsadug)
+library(tidyr)
+library(gridExtra)
+library(grid)
+library(purrr)
+library(broom)
+```
+
+Load the metadata. Columns containing pairwise stress annotations (pairBetonung) were selected and combined with participant-level variables. Reshape the dataset from wide to long format for convenience, such that each row corresponds to a single observation.
+
+```{r, message=FALSE}
+meta <- read.table("metad.tsv", header = T, sep = "\t")
+
+gen=meta[,c(1:4)]
+
+meta_bet = meta %>% dplyr::select(contains("pairBetonung"))
+meta_bet=cbind(gen, meta_bet)
+
+meta_bet_long = gather(meta_bet, key="vp", value="pairBetonung", l2_01_1a_pairBetonung:l2_17_1a_pairBetonung)
+
+
+meta_bet_long = meta_bet_long %>% separate("vp", c("a", "RECORDING_SESSION_LABEL", "list", "d"), sep = "_")
+meta_bet_long$RECORDING_SESSION_LABEL = as.numeric(meta_bet_long$RECORDING_SESSION_LABEL)
+
+meta_bet_long$RECORDING_SESSION_LABEL <- as.factor(meta_bet_long$RECORDING_SESSION_LABEL)
+```
+
+Load the fixation data.
+
+```{r, message=FALSE}
+data_long <- read.table("fixdurations.txt", header = T, sep = "\t")
+data_long$RECORDING_SESSION_LABEL <- as.factor(data_long$RECORDING_SESSION_LABEL)
+```
+
+Create a subset with experimental trials only (stress on medial (=2nd) syllable, e.g., LiBElle); also exclude fixations that do not fall in the four predefined interest areas.
+
+```{r}
+data_long_medial = droplevels.data.frame(data_long[data_long$stress == "medial" & 
+                   data_long$RIGHT_INTEREST_AREA_ID!= 0,])
+
+data_long_medial = merge(data_long_medial, meta_bet_long, by=c("itemid", "RECORDING_SESSION_LABEL"))
+```
+
+Run the function fasttrack() (implemented in the R package *VW Pre* (version 1.1.0), developed for preprocessing and plotting Visual World Paradigm eye-tracking data, Porretta et al. 2018).
+
+```{r, message = FALSE, warning=FALSE}
+noexp_df <- fasttrack(data = data_long_medial, Subject = "RECORDING_SESSION_LABEL", 
+      Item = "itemid", EventColumns = c("Subject", "TRIAL_INDEX"), NoIA = 4, Adjust = 0,
+      Recording = "LandR", WhenLandR = "Right", SamplingRate = 250, BinSize = 20, 
+      ObsPerBin = 5, Constant = 0.5, Output = "ELogit")
+```
+
+Calculate error rates: a cohort pair counts as correct (and included into analysis) only if participants correctly allocate stress in both WSW target and SWW competitor; if this was not the case, the value of pairBetonung was set to 0.
+
+```{r}
+noexp_df_full <- noexp_df
+noexp_df <- subset(noexp_df, !(pairBetonung %in% 0))
+noexp_df$pairBetonung <- as.factor(noexp_df$pairBetonung)
+1-nrow(noexp_df) / nrow(noexp_df_full)
+```
+
+Exclude bins contain only one sample.
+
+```{r}
+noexp_df_ex = noexp_df[noexp_df$NSamples !=1,]
+```
+
+Convert "cond" into factor.
+
+```{r}
+noexp_df_ex$cond = as.factor(noexp_df_ex$cond)
+```
+
+Exclude participant 18 because of hearing impairments.
+
+```{r}
+noexp_df_ex$Subject <- as.character(noexp_df_ex$Subject)
+noexp_df_ex <- filter(noexp_df_ex, Subject !="18")
+noexp_df_ex -> corr
+```
+
+Final number of participants.
+
+```{r}
+length(unique(corr$Subject))
+```
+
+# Evolution of Fixations
+
+## All participants
+
+Set a vector for colours.
+
+```{r}
+colours <- c("blue3", "red3", "skyblue3", "skyblue3")
+colours2 <- c("red3", "orange")
+```
+
+Plot evolution of fixations to the four words on screen.
+
+```{r fig8, message = FALSE, fig.width=16, fig.height=6, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_avg(data = corr, type = "proportion", xlim = c(0, 1700), IAColumns = c(IA_1_P = "Target (WSW)", IA_2_P = "Competitor (SWW)", IA_3_P = "Distractor1",   IA_4_P = "Distractor2"),  Condition2 = NULL, Condition1 = "cond", Cond2Labels = NA, Cond1Labels = c(e = "early-peak (H+L*)", m = "medial-peak (L+H*)"), ErrorBar = TRUE, VWPreTheme = FALSE) + xlab("Time from stimuli onset (auditory target WSW, e.g., Libelle)") + ylab("Fixation proportion") + theme_bw() + theme(axis.title.y = element_text(size = 25, face = "bold", vjust = 1.5), axis.title.x = element_text(size = 25, face = "bold", vjust = 0.5), axis.text = element_text(size = 18), plot.title = element_text(size = 30, face = "bold", vjust = 1.5), legend.text = element_text(size = 25), legend.title = element_text(size = 25, face = "bold"), legend.key.size = unit(2, 'lines')) + scale_y_continuous(breaks = seq(0, 0.85, by = 0.2), limits = c(0,0.85)) + scale_x_continuous(breaks = seq(0, 1700, by = 100), limits = c(0,1700)) + geom_vline(xintercept = c(200, 432,775,1327), colour = "darkgrey", size = 1, linetype = "longdash") + scale_colour_manual(values=colours, name = "Location of fixation", labels = c("Target (WSW)", "Competitor (SWW)", "Distractor1", "Distractor2")) + annotate("text", x = 1080, y = 0.62, label = "segmental \nU.P.", size = 6) + annotate("segment", x = 1077, xend = 1077, y = 0.0, yend = 0.53, colour = "black", linetype = "dashed", size = 1) + annotate("text", x = 310, y = 0.8, label = "Bitte", size = 10) + annotate("text", x = 600, y = 0.8, label = "klicke", size = 10) + annotate("text", x = 1050, y = 0.8, label = "LIBELLE", size = 10) + annotate("text", x = 1500, y = 0.8, label = "an", size = 10) + theme(strip.text.y = element_text(size = 25)) + ggtitle("All participants")
+```
+
+### Competitor fixations
+
+Plot competitor fixations in two intonation conditions (early- and medial-peak condition).
+
+```{r fig9, message = FALSE, fig.width=16, fig.height=6, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_avg(data = corr, type = "proportion", xlim = c(0, 1700), IAColumns = c(IA_2_P = "Competitor (SWW)"),  Condition1 = "cond", Condition2 = NULL, Cond1Labels = c(e = "early-peak accent (H+L*)", m = "medial-peak accent (L+H*)"), Cond2Labels = NA, ErrorBar = TRUE, VWPreTheme = FALSE) + xlab("Time from stimuli onset (auditory target WSW, e.g., Libelle)") + ylab("Fixation proportion") + theme_bw() + theme(axis.title.y = element_text(size = 25, face = "bold", vjust = 1.5), axis.title.x = element_text(size = 25, face = "bold", vjust = 0.5), axis.text = element_text(size = 18), plot.title = element_text(size = 30, face = "bold", vjust = 1.5), legend.text = element_text(size = 25), legend.title = element_text(size = 25, face = "bold"), legend.key.size = unit(2, 'lines')) + scale_y_continuous(breaks = seq(0, 1.05, by = 0.2), limits=c(-0,1)) + scale_x_continuous(breaks = seq(0, 1700, by = 100), limits = c(0,1700)) + geom_vline(xintercept = c(200, 432,775,1327), colour = "darkgrey", size = 1, linetype = "longdash") + annotate("text", x = 1080, y = 0.83, label = "segmental \nU.P.", size = 6) + annotate("segment", x = 1077, xend = 1077, y = 0.0, yend = 0.75, colour = "black", linetype = "dashed", size = 1) + annotate("text", x = 310, y = 0.97, label = "Bitte", size = 10) + annotate("text", x = 600, y = 0.97, label = "klicke", size = 10) + annotate("text", x = 1050, y = 0.97, label = "LIBELLE", size = 10) + annotate("text", x = 1500, y = 0.97, label = "an", size = 10) + theme(strip.text.y = element_text(size = 25)) + scale_shape_manual(values = c(3,6)) + scale_colour_manual(values = colours2, name = "Intonation condition", labels = c("Early-peak", "Medial-peak")) + ggtitle("Competitor fixations (all participants)")
+```
+
+### Target fixations
+
+Plot target fixations in two intonation conditions (early- and medial-peak condition).
+
+```{r fig13a, message = FALSE, fig.width=16, fig.height=6, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_avg(data = corr, type = "proportion", xlim = c(0, 1700), IAColumns = c(IA_1_P = "Target (WSW)"),  Condition1 = "cond", Condition2 = NULL, Cond1Labels = c(e = "early-peak accent (H+L*)", m = "medial-peak accent (L+H*)"), Cond2Labels = NA, ErrorBar = TRUE, VWPreTheme = FALSE) + xlab("Time from stimuli onset (auditory target WSW, e.g., Libelle)") + ylab("Fixation proportion") + theme_bw() + theme(axis.title.y = element_text(size = 25, face = "bold", vjust = 1.5), axis.title.x = element_text(size = 25, face = "bold", vjust = 0.5), axis.text = element_text(size = 18), plot.title = element_text(size = 30, face = "bold", vjust = 1.5), legend.text = element_text(size = 25), legend.title = element_text(size = 25, face = "bold"), legend.key.size = unit(2, 'lines')) + scale_y_continuous(breaks = seq(0, 1.05, by = 0.2), limits=c(-0,1)) + scale_x_continuous(breaks = seq(0, 1700, by = 100), limits = c(0,1700)) + geom_vline(xintercept = c(200, 432,775,1327), colour = "darkgrey", size = 1, linetype = "longdash") + annotate("text", x = 1080, y = 0.83, label = "segmental \nU.P.", size = 6) + annotate("segment", x = 1077, xend = 1077, y = 0.0, yend = 0.75, colour = "black", linetype = "dashed", size = 1) + annotate("text", x = 310, y = 0.97, label = "Bitte", size = 10) + annotate("text", x = 600, y = 0.97, label = "klicke", size = 10) + annotate("text", x = 1050, y = 0.97, label = "LIBELLE", size = 10) + annotate("text", x = 1500, y = 0.97, label = "an", size = 10) + theme(strip.text.y = element_text(size = 25)) + scale_shape_manual(values = c(3,6)) + scale_colour_manual(values = colours2, name = "Intonation condition", labels = c("Early-peak", "Medial-peak"))+ ggtitle("Target fixations (all participants)")
+```
+
+## Type 2 only
+
+Filter participants classified as Type 2 in the production experiment.
+
+```{r}
+corr_type2 <- filter(corr, Subject %in% c("2", "3", "6", "7", "13", "15", "16", "17"))
+```
+
+Plot evolution of fixations to the four words on screen.
+
+```{r fig10, message = FALSE, fig.width=16, fig.height=6, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_avg(data = corr_type2, type = "proportion", xlim = c(0, 1700), IAColumns = c(IA_1_P = "Target (WSW)", IA_2_P = "Competitor (SWW)", IA_3_P = "Distractor1",   IA_4_P = "Distractor2"),  Condition2 = NULL, Condition1 = "cond", Cond2Labels = NA, Cond1Labels = c(e = "early-peak (H+L*)", m = "medial-peak (L+H*)"), ErrorBar = TRUE, VWPreTheme = FALSE) + xlab("Time from stimuli onset (auditory target WSW, e.g., Libelle)") + ylab("Fixation proportion") + theme_bw() + theme(axis.title.y = element_text(size = 25, face = "bold", vjust = 1.5), axis.title.x = element_text(size = 25, face = "bold", vjust = 0.5), axis.text = element_text(size = 18), plot.title = element_text(size = 30, face = "bold", vjust = 1.5), legend.text = element_text(size = 25), legend.title = element_text(size = 25, face = "bold"), legend.key.size = unit(2, 'lines')) + scale_y_continuous(breaks = seq(0, 1, by = 0.2), limits = c(0,1)) + scale_x_continuous(breaks = seq(0, 1700, by = 100), limits = c(0,1700)) + geom_vline(xintercept = c(200, 432,775,1327), colour = "darkgrey", size = 1, linetype = "longdash") + scale_colour_manual(values=colours, name = "Location of fixation", labels = c("Target (WSW)", "Competitor (SWW)", "Distractor1", "Distractor2")) + annotate("text", x = 1080, y = 0.75, label = "segmental \nU.P.", size = 6) + annotate("segment", x = 1077, xend = 1077, y = 0.0, yend = 0.61, colour = "black", linetype = "dashed", size = 1) + annotate("text", x = 310, y = 0.95, label = "Bitte", size = 10) + annotate("text", x = 600, y = 0.95, label = "klicke", size = 10) + annotate("text", x = 1050, y = 0.95, label = "LIBELLE", size = 10) + annotate("text", x = 1500, y = 0.95, label = "an", size = 10) + theme(strip.text.y = element_text(size = 25)) + ggtitle("Type 2 only")
+```
+
+### Competitor fixations
+
+Plot competitor fixations in two intonation conditions (early- and medial-peak condition).
+```{r fig11a, message = FALSE, fig.width=16, fig.height=6, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_avg(data = corr_type2, type = "proportion", xlim = c(0, 1700), IAColumns = c(IA_2_P = "Competitor (SWW)"),  Condition1 = "cond", Condition2 = NULL, Cond1Labels = c(e = "early-peak accent (H+L*)", m = "medial-peak accent (L+H*)"), Cond2Labels = NA, ErrorBar = TRUE, VWPreTheme = FALSE) + xlab("Time from stimuli onset (auditory target WSW, e.g., Libelle)") + ylab("Fixation proportion") + theme_bw() + theme(axis.title.y = element_text(size = 25, face = "bold", vjust = 1.5), axis.title.x = element_text(size = 25, face = "bold", vjust = 0.5), axis.text = element_text(size = 18), plot.title = element_text(size = 30, face = "bold", vjust = 1.5), legend.text = element_text(size = 25), legend.title = element_text(size = 25, face = "bold"), legend.key.size = unit(2, 'lines')) + scale_y_continuous(breaks = seq(0, 1.05, by = 0.2), limits=c(-0,1)) + scale_x_continuous(breaks = seq(0, 1700, by = 100), limits = c(0,1700)) + geom_vline(xintercept = c(200, 432,775,1327), colour = "darkgrey", size = 1, linetype = "longdash") + annotate("text", x = 1080, y = 0.83, label = "segmental \nU.P.", size = 6) + annotate("segment", x = 1077, xend = 1077, y = 0.0, yend = 0.75, colour = "black", linetype = "dashed", size = 1) + annotate("text", x = 310, y = 0.97, label = "Bitte", size = 10) + annotate("text", x = 600, y = 0.97, label = "klicke", size = 10) + annotate("text", x = 1050, y = 0.97, label = "LIBELLE", size = 10) + annotate("text", x = 1500, y = 0.97, label = "an", size = 10) + theme(strip.text.y = element_text(size = 25)) + scale_shape_manual(values = c(3,6)) + scale_colour_manual(values = colours2, name = "Intonation condition", labels = c("Early-peak", "Medial-peak")) + ggtitle("Competitor fixations (Type 2)")
+```
+
+### Target fixations
+
+Plot target fixations in two intonation conditions (early- and medial-peak condition).
+
+```{r fig12a, message = FALSE, fig.width=16, fig.height=6, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_avg(data = corr_type2, type = "proportion", xlim = c(0, 1700), IAColumns = c(IA_1_P = "Target (WSW)"),  Condition1 = "cond", Condition2 = NULL, Cond1Labels = c(e = "early-peak accent (H+L*)", m = "medial-peak accent (L+H*)"), Cond2Labels = NA, ErrorBar = TRUE, VWPreTheme = FALSE) + xlab("Time from stimuli onset (auditory target WSW, e.g., Libelle)") + ylab("Fixation proportion") + theme_bw() + theme(axis.title.y = element_text(size = 25, face = "bold", vjust = 1.5), axis.title.x = element_text(size = 25, face = "bold", vjust = 0.5), axis.text = element_text(size = 18), plot.title = element_text(size = 30, face = "bold", vjust = 1.5), legend.text = element_text(size = 25), legend.title = element_text(size = 25, face = "bold"), legend.key.size = unit(2, 'lines')) + scale_y_continuous(breaks = seq(0, 1.05, by = 0.2), limits=c(-0,1)) + scale_x_continuous(breaks = seq(0, 1700, by = 100), limits = c(0,1700)) + geom_vline(xintercept = c(200, 432,775,1327), colour = "darkgrey", size = 1, linetype = "longdash") + annotate("text", x = 1080, y = 0.83, label = "segmental \nU.P.", size = 6) + annotate("segment", x = 1077, xend = 1077, y = 0.0, yend = 0.75, colour = "black", linetype = "dashed", size = 1) + annotate("text", x = 310, y = 0.97, label = "Bitte", size = 10) + annotate("text", x = 600, y = 0.97, label = "klicke", size = 10) + annotate("text", x = 1050, y = 0.97, label = "LIBELLE", size = 10) + annotate("text", x = 1500, y = 0.97, label = "an", size = 10) + theme(strip.text.y = element_text(size = 25)) + scale_shape_manual(values = c(3,6)) + scale_colour_manual(values = colours2, name = "Intonation condition", labels = c("Early-peak", "Medial-peak")) + ggtitle("Target fixations (Type 2)")
+```
+
+# GAMM Analyses
+
+Generalized additive mixed models (GAMMs) were fitted using the R package mgcv (Wood, 2011, 2017), and results were visualized with itsadug (van Rij et al., 2016). As GAMM output tables alone are insufficient for interpretation and visualizations are essential for results interpretation (Wieling, 2018; Wood, 2017), graphical inspection played a central role in the analysis. Following Porretta, Tucker, and Järvikivi (2016), model selection was carried out using a backward stepwise elimination procedure.
+
+## Data Prep
+
+Create two separate data frames for the analyses of competitor and target fixations, respectively.
+
+```{r}
+noexp_df_ex_GAMM = noexp_df_ex[noexp_df_ex$TIMESTAMP >= 780 & noexp_df_ex$TIMESTAMP <= 1180,]
+
+target_df_ex_GAMM = noexp_df_ex[noexp_df_ex$TIMESTAMP >= 780 & noexp_df_ex$TIMESTAMP <= 1350,]
+```
+
+Create an *event* variable (combining subject and item as a unique identifier) and logical start_event variable (TRUE for start of event, FALSE in all other cases, necessary for autocorrelation in GAMMs), see Wieling (2018).
+
+```{r}
+# initialize as logical
+noexp_df_ex_GAMM$start_event <- FALSE
+
+# create an event variable
+noexp_df_ex_GAMM$event <- interaction(noexp_df_ex_GAMM$Subject, noexp_df_ex_GAMM$Item)
+
+# sort the data
+noexp_df_ex_GAMM <- noexp_df_ex_GAMM[with(noexp_df_ex_GAMM, order(Subject, Item, TIMESTAMP)),]
+
+# assign TRUE to specific rows
+noexp_df_ex_GAMM$start_event[noexp_df_ex_GAMM$TIMESTAMP == 780] <- TRUE
+
+# Verify that start_event is logical and no NAs exist
+table(noexp_df_ex_GAMM$start_event, useNA = "always")
+
+noexp_df_ex_GAMM$Subject <- as.factor(noexp_df_ex_GAMM$Subject)
+noexp_df_ex_GAMM$Item <- as.factor(noexp_df_ex_GAMM$Item)
+```
+
+The same steps are repeated for target fixations.
+
+```{r}
+# initialize as logical
+target_df_ex_GAMM$start_event <- FALSE
+
+# create event variable
+target_df_ex_GAMM$event <- interaction(target_df_ex_GAMM$Subject, target_df_ex_GAMM$Item)
+
+
+# sort the data
+target_df_ex_GAMM <- target_df_ex_GAMM[with(target_df_ex_GAMM, order(Subject, Item, TIMESTAMP)),]
+
+# assign TRUE to specific rows
+target_df_ex_GAMM$start_event[target_df_ex_GAMM$TIMESTAMP == 780] <- TRUE
+
+# verify that start_event is logical and no NAs exist
+table(target_df_ex_GAMM$start_event, useNA = "always")
+
+target_df_ex_GAMM$Subject <- as.factor(target_df_ex_GAMM$Subject)
+target_df_ex_GAMM$Item <- as.factor(target_df_ex_GAMM$Item)
+
+noexp_df_ex_GAMM -> df_combined
+target_df_ex_GAMM -> df_combined_target
+```
+
+Two data frames for a Type-2 subset are created: with competitor and target fixations, respectively.
+
+```{r}
+df_type2 <- noexp_df_ex_GAMM[noexp_df_ex_GAMM$Subject %in% c("2", "3", "6", "7", "13", "15", "16", "17"),]
+df_type2_target <- target_df_ex_GAMM[target_df_ex_GAMM$Subject %in% c("2", "3", "6", "7", "13", "15", "16", "17"),]
+```
+
+## Competitor fixations
+
+### Type 2
+
+The basic model for Experiment 2 included *cond* (intonation condition: early-peak vs. medial-peak accent) as a parametric fixed effect, smooth terms for time by condition, and a random intercept for event. This model was used to estimate the rho parameter to account for autocorrelation.
+
+```{r}
+basic.gam.type2 <- bam(IA_2_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+             bs = 're'), data = df_type2, 
+             discrete = FALSE, nthreads = 4, method = "ML")
+summary(basic.gam.type2)
+```
+
+\
+Determine the rho value to adjust for autocorrelation.
+
+```{r message = FALSE}
+r_acf <- acf_resid(basic.gam.type2)
+rhoval = r_acf[2]
+rhoval
+```
+
+\
+Basic model for Experiment 2, adjusted for autocorrelation:
+
+```{r}
+noexp_acf.bam.type2 <- bam(IA_2_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+                 bs = 're'), rho = rhoval, AR.start = df_type2$start_event, data = df_type2, discrete = FALSE, nthreads = 4, method = "ML")
+summary(noexp_acf.bam.type2)
+```
+
+\
+Test whether the different time-smooths for condition are warranted (create model without smooth for condition over time and compare model noexp_acf.bam vs. mod0_acf.bam using CompareML() function).
+
+```{r}
+mod0_acf.bam.type2 <- bam(IA_2_ELogit ~ cond + s(event, bs = 're'), rho = rhoval, 
+                AR.start = df_type2$start_event,
+                data = df_type2, discrete=FALSE, method = "ML", 
+                nthreads = 4)
+
+compareML(noexp_acf.bam.type2, mod0_acf.bam.type2)
+```
+
+Model with different time-smooths for condition is preferred. This is the final model.
+
+```{r}
+noexp_acf.bam.type2 -> noexp_acf.bam.type2_competitors
+
+summary(noexp_acf.bam.type2_competitors)
+
+s <- summary(noexp_acf.bam.type2_competitors)
+
+param <- as.data.frame(s$p.table)
+smooth <- as.data.frame(s$s.table)
+```
+
+Difference plot for competitor fixations (early-peak - medial-peak) based on the final model (noexp_acf.bam):
+
+```{r fig11b, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_diff(noexp_acf.bam.type2, view = "TIMESTAMP", comp = list(cond = (c("e","m"))), ylab = "Difference in Elogs (early peak - medial peak)", xlab = "Time (in ms) from WSW target onset (e.g., Libelle) to segmental U.P., shifted by 200ms", main="Competitor fixations (Type 2)", m.ranef = T, ylim = c(-3, 5), cex.main = 2)
+```
+
+### All participants
+
+Follow the same procedure as described above.
+
+```{r, warning=FALSE}
+basic.gam <- bam(IA_2_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+             bs = 're'), data = df_combined, 
+             discrete = FALSE, nthreads = 4, method = "ML")
+summary(basic.gam)
+
+r_acf <- acf_resid(basic.gam)
+rhoval = r_acf[2]
+rhoval
+
+noexp_acf.bam <- bam(IA_2_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+                 bs = 're'), rho = rhoval, AR.start = df_combined$start_event, data = df_combined, discrete = FALSE, nthreads = 4, method = "ML")
+summary(noexp_acf.bam)
+
+mod0_acf.bam <- bam(IA_2_ELogit ~ cond + s(event, bs = 're'), rho = rhoval, 
+                AR.start = df_combined$start_event,
+                data = df_combined, discrete=FALSE, method = "ML", 
+                nthreads = 4)
+
+compareML(noexp_acf.bam, mod0_acf.bam)
+
+summary(mod0_acf.bam)
+```
+
+Difference curve (non-significant):
+```{r echo = TRUE, warning=FALSE}
+plot_diff(noexp_acf.bam, view = "TIMESTAMP", comp = list(cond = (c("e","m"))), ylab = "Difference in Elogs (early peak - medial peak)", xlab = "Time (in ms) from WSW target onset (e.g., Libelle) to segmental U.P., shifted by 200ms", main="All participants", m.ranef = T, ylim = c(-3, 5))
+```
+
+## Target fixations
+
+### Type 2
+
+Follow the same procedure as described above for Type-2 participants (target fixations).
+
+```{r}
+basic.gam.type2 <- bam(IA_1_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+             bs = 're'), data = df_type2_target, 
+             discrete = FALSE, nthreads = 4, method = "ML")
+summary(basic.gam.type2)
+```
+
+```{r}
+r_acf <- acf_resid(basic.gam.type2)
+rhoval = r_acf[2]
+rhoval
+```
+
+```{r}
+noexp_acf.bam.type2 <- bam(IA_1_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+                 bs = 're'), rho = rhoval, AR.start = df_type2_target$start_event, data = df_type2_target, discrete = FALSE, nthreads = 4, method = "ML")
+```
+
+```{r}
+mod0_acf.bam.type2 <- bam(IA_1_ELogit ~ cond + s(event, bs = 're'), rho = rhoval, 
+                AR.start = df_type2_target$start_event,
+                data = df_type2_target, discrete=FALSE, method = "ML", 
+                nthreads = 4)
+
+compareML(noexp_acf.bam.type2, mod0_acf.bam.type2)
+```
+
+This is the final model for Type 2
+
+```{r}
+summary(noexp_acf.bam.type2)
+```
+
+Difference curve for Type 2:
+```{r, fig12b, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_diff(noexp_acf.bam.type2, view = "TIMESTAMP", comp = list(cond = (c("e","m"))), ylab = "Difference in Elogs (early peak - medial peak)", xlab = "Time (in ms) from WSW target onset (e.g., Libelle) to segmental U.P., shifted by 200ms", main="Target fixations (Type 2)", m.ranef = T, ylim = c(-3, 5), cex.main = 2)
+```
+
+### All participants
+
+Follow the same procedure as described above for all participants (target fixations).
+
+```{r, warning=FALSE}
+basic.gam <- bam(IA_2_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+             bs = 're'), data = df_combined_target, 
+             discrete = FALSE, nthreads = 4, method = "ML")
+summary(basic.gam)
+
+r_acf <- acf_resid(basic.gam)
+rhoval = r_acf[2]
+rhoval
+
+noexp_acf.bam <- bam(IA_2_ELogit ~ cond + s(TIMESTAMP, by = cond) + s(event, 
+                 bs = 're'), rho = rhoval, AR.start = df_combined_target$start_event, data = df_combined_target, discrete = FALSE, nthreads = 4, method = "ML")
+summary(noexp_acf.bam)
+
+mod0_acf.bam <- bam(IA_2_ELogit ~ cond + s(event, bs = 're'), rho = rhoval, 
+                AR.start = df_combined_target$start_event,
+                data = df_combined_target, discrete=FALSE, method = "ML", 
+                nthreads = 4)
+
+compareML(noexp_acf.bam, mod0_acf.bam)
+
+summary(mod0_acf.bam)
+```
+
+
+```{r, fig13b, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_diff(noexp_acf.bam, view = "TIMESTAMP", comp = list(cond = (c("e","m"))), ylab = "Difference in Elogs (early peak - medial peak)", xlab = "Time (in ms) from WSW target onset (e.g., Libelle) to segmental U.P., shifted by 200ms", main="All participants", m.ranef = T, ylim = c(-3, 5), cex.main = 2)
+```
+
+# Group membership (Type 1 or Type 2)
+To determine group membership (what factors determine learner type?), load the metadata. Turn Type to factor.
+```{r, message=FALSE}
+meta <- read.table("metad_learner_types.tsv", header = T, sep = "\t")
+meta$type <- as.factor(meta$type)
+```
+
+Run multiple chi-square tests with categorical predictors and a Kruskal-Wallis rank sum test for age (this test does not assume a normal distribution). We see no evidence that Type is associated with any of these predictors (all p > .23).
+```{r, warning=FALSE}
+# categorical predictors
+cat_vars <- c("gender", "region", "dialgroup", "l1", "musical", "previousexp", "proficiency")
+
+# function to run chi-square and tidy output
+run_chi <- function(var) {
+  tab <- table(meta$type, meta[[var]])
+  test <- chisq.test(tab)
+  
+  tidy(test) %>%
+    mutate(factor = var) %>%
+    select(factor, statistic, parameter, p.value)
+}
+
+# run all chi-square tests
+chi_results <- map_dfr(cat_vars, run_chi)
+
+# Kruskal-Wallis for age
+kw_result <- tidy(kruskal.test(age ~ type, data = meta)) %>%
+  mutate(factor = "age") %>%
+  select(factor, statistic, parameter, p.value)
+
+# combine everything
+final_results <- bind_rows(chi_results, kw_result)
+final_results
+```
+

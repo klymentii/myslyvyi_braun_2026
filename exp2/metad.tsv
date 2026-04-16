@@ -1,0 +1,65 @@
+Pair	itemid		Gruppe	Competitor	Cognate	Betonung_Unterschied	Betonung_gleich	Mittelwert_Bedeutung	Mittelwert_Betonung	l2_01_1a_Bedeutung	l2_01_1a_Betonung	l2_01_1a_pairBetonung	l2_02_1b_Bedeutung	l2_02_1b_Betonung	l2_02_1b_pairBetonung	l2_03_1c_Bedeutung	l2_03_1c_Betonung	l2_03_1c_pairBetonung	l2_04_1d_Bedeutung	l2_04_1d_Betonung	l2_04_1d_pairBetonung	l2_05_2a_Bedeutung	l2_05_2a_Betonung	l2_05_2a_pairBetonung	l2_06_2b_Bedeutung	l2_06_2b_Betonung	l2_06_2b_pairBetonung	l2_07_2c_Bedeutung	l2_07_2c_Betonung	l2_07_2c_pairBetonung	l2_08_2d_Bedeutung	l2_08_2d_Betonung	l2_08_2d_pairBetonung	l2_09_1a_Bedeutung	l2_09_1a_Betonung	l2_09_1a_pairBetonung	l2_10_1b_Bedeutung	l2_10_1b_Betonung	l2_10_1b_pairBetonung	l2_11_1c_Bedeutung	l2_11_1c_Betonung	l2_11_1c_pairBetonung	l2_12_1d_Bedeutung	l2_12_1d_Betonung	l2_12_1d_pairBetonung	l2_13_2a_Bedeutung	l2_13_2a_Betonung	l2_13_2a_pairBetonung	l2_14_2b_Bedeutung	l2_14_2b_Betonung	l2_14_2b_pairBetonung	l2_15_2c_Bedeutung	l2_15_2c_Betonung	l2_15_2c_pairBetonung	l2_16_2d_Betonung	l2_16_2d_pairBetonung	l2_17_1a_Betonung	l2_17_1a_pairBetonung	l2_18_2a_Betonung	l2_18_2a_pairBetonung
+Alaska – Alibi	Alaska	57	cognate_same	Alibi	1	0	1	2	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	1		1	1		1	1		1	0	1	1	1	1	1	1
+Alaska – Alibi	Alibi	63	cognate_same	Alaska	1	0	1	1,82	0,91	2	1	1	2	1	1	2	1	1	0	0	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	1		1	1		1	1		0	0	1	1	1	1	1	1
+Albaner – Albatros	Albatros	6	cognate_early_stress	Albaner	1	-2	0	2	0,19	2	0	0	2	1	1	2	0	0	2	0	0	2	1	1	2	0	0	2	0	0	2	0	1	2	0	0	2	0	0	2	0	0		1	0		0	0		1	1		1	1	1	1	0	0	1	1
+Albaner – Albatros	Albaner	39	cognate_same	Albatros	1	0	1	1,91	0,91	2	1	0	2	1	1	2	1	0	2	1	0	2	1	1	2	1	0	2	1	0	2	0	1	2	1	0	2	1	0	1	1	0		0	0		1	0		1	1		1	1	1	1	1	0	1	1
+Anapher – Ananas	Ananas	23	cognate_early_stress	Anapher	1	-2	0	2	0,46	2	0	0	2	1	1	2	1	1	2	0	0	2	1	1	2	0	0	2	0	0	2	0	1	2	1	1	2	1	1	2	0	0		0	0		0	0		0	0		1	0	1	0	1	0	1	1
+Anapher – Ananas	Anapher	41	cognate_same	Ananas	1	0	1	1	0,91	1	1	0	2	1	1	2	1	1	0	1	0	2	1	1	0	1	0	1	1	0	1	0	1	0	1	1	2	1	1	0	1	0		1	0		1	0		1	0		0	0	0	0	0	0	1	1
+Anode – Anorak	Anode	8	cognate_same	Anorak	1	0	1	0,37	1	0	1	0	1	1	1	0	1	1	0	1	0	0	1	0	1	1	1	1	1	0	1	1	0	0	1	0	0	1	1	0	1	0		1	0		1	0		1	1		1	1	1	1	1	0	1	1
+Anode – Anorak	Anorak	59	cognate_early_stress	Anode	1	-2	0	0,73	0,37	1	0	0	2	1	1	0	1	1	0	0	0	0	0	0	2	1	1	1	0	0	2	0	0	0	0	0	0	1	1	0	0	0		0	0		0	0		1	1		1	1	1	1	0	0	1	1
+Aroma – Arie	Aroma	47	cognate_early_stress	Arie	1	-1	0	2	0,91	2	1	1	2	1	1	2	0	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	0		1	1		1	1		1	1	1	1	1	1	1	1
+Aroma – Arie	Arie	62	cognate_same	Aroma	1	0	1	1,37	1	2	1	1	0	1	1	2	1	0	1	1	1	2	1	1	2	1	1	0	1	1	2	1	1	0	1	1	2	1	1	2	1	1		0	0		1	1		1	1		1	1	1	1	1	1	1	1
+Embargo – Embryo	Embargo	34	cognate_same	Embryo	1	0	1	2	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	0	2	1	1		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Embargo – Embryo	Embryo	58	cognate_early_stress	Embargo	1	-2	0	1,28	0,73	2	1	1	0	1	1	2	1	1	0	0	0	2	1	1	1	1	1	1	1	1	2	1	1	2	0	0	0	0	0	2	1	1		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Enklave – Enkelin	Enkelin	10	non-cognate	Enklave	0		-1	1,46	0,91	2	1	1	2	1	1	2	1	1	0	0	0	2	1	1	2	1	1	0	1	1	2	1	1	0	1	1	2	1	1	2	1	1		0	0		1	1		1	1		1	1	1	1	1	1	1	1
+Enklave – Enkelin	Enklave	43	cognate_same	Enkelin	1	0	1	0,91	1	1	1	1	0	1	1	2	1	1	0	1	0	0	1	1	2	1	1	2	1	1	1	1	1	2	1	1	0	1	1	0	1	1		1	0		1	1		1	1		1	1	1	1	1	1	1	1
+Eskorte – Eskimo	Eskimo	9	cognate_early_stress	Eskorte	1	-2	0	2	0,46	2	0	0	2	1	1	2	1	1	2	0	0	2	1	1	2	0	0	2	1	1	2	0	0	2	1	1	2	0	0	2	0	0		0	0		0	0		1	1		1	1	1	1	1	1	0	0
+Eskorte – Eskimo	Eskorte	30	cognate_same	Eskimo	1	0	1	1,91	1	2	1	0	2	1	1	2	1	1	2	1	0	2	1	1	2	1	0	1	1	1	2	1	0	2	1	1	2	1	0	2	1	0		1	0		1	0		1	1		1	1	1	1	1	1	1	0
+Exotik – Exodus	Exodus	13	non-cognate	Exotik	0		-1	0,37	0,19	0	1	1	0	0	0	0	0	0	2	0	0	0	0	0	0	1	1	2	0	0	0	0	0	0	0	0	0	0	0	0	0	0		1	1		1	1		0	0		0	0	1	1	0	0	0	0
+Exotik – Exodus	Exotik	16	cognate_same	Exodus	1	0	1	2	1	2	1	1	2	1	0	2	1	0	2	1	0	2	1	0	2	1	1	2	1	0	2	1	0	2	1	0	2	1	0	2	1	0		1	1		1	1		1	0		1	0	1	1	1	0	1	0
+Facette – Faserung	Facette	5	cognate_same	Faserung	1	0	1	1,28	1	2	1	0	1	1	1	1	1	0	1	1	1	2	1	1	1	1	0	2	1	1	2	1	1	2	1	1	0	1	0	0	1	0		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Facette – Faserung	Faserung	56	non-cognate	Facette	0		-1	0,73	0,55	1	0	0	0	1	1	1	0	0	2	1	1	0	1	1	0	0	0	0	1	1	1	1	1	2	1	1	1	0	0	0	0	0		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Furore – Furie	Furie	1	cognate_same	Furore	1	0	1	1,73	1	2	1	1	2	1	1	1	1	1	2	1	1	2	1	1	2	1	1	1	1	1	2	1	1	1	1	1	2	1	1	2	1	1		1	1		1	1		1	1		0	0	1	1	1	1	1	1
+Furore – Furie	Furore	28	cognate_same	Furie	1	0	1	1,82	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	0	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	1		1	1		1	1		1	0	1	1	1	1	1	1
+Genetik – Genesis	Genesis	20	cognate_early_stress	Genetik	1	-1	0	1,91	0	2	0	0	2	0	0	2	0	1	1	0	0	2	0	0	2	0	0	2	0	0	2	0	1	2	0	0	2	0	0	2	0	0		0	0		0	0		0	0		0	0	1	1	0	0	1	1
+Genetik – Genesis	Genetik	45	cognate_same	Genesis	1	0	1	2	0,82	2	1	0	2	1	0	2	0	1	2	1	0	2	1	0	2	1	0	2	1	0	2	0	1	2	1	0	2	1	0	2	1	0		1	0		1	0		1	0		1	0	1	1	1	0	1	1
+Kabine – Kabeljau	Kabeljau	22	non-cognate	Kabine	0		-1	0,1	0,46	0	1	1	0	1	1	1	1	1	0	0	0	0	1	1	0	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		0	0		0	0		1	1		0	0	1	1	1	1	1	1
+Kabine – Kabeljau	Kabine	53	cognate_same	Kabeljau	1	0	1	1,82	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	1	2	1	1	2	1	0	2	1	0	2	1	0	2	1	0	0	1	0		1	0		1	0		1	1		1	0	1	1	1	1	1	1
+Kamille – Kamerun	Kamerun	12	cognate_early_stress	Kamille	1	-2	0	1,64	0,37	2	0	0	2	1	1	2	1	1	1	0	0	1	1	1	0	0	0	2	1	1	2	0	0	2	0	0	2	0	0	2	0	0		1	1		1	1		1	1		1	1	1	1	0	0	1	1
+Kamille – Kamerun	Kamille	44	non-cognate	Kamerun	0		-1	1,73	1	2	1	0	2	1	1	1	1	1	1	1	0	2	1	1	2	1	0	1	1	1	2	1	0	2	1	0	2	1	0	2	1	0		1	1		1	1		1	1		1	1	1	1	1	0	1	0
+Kanister – Kanapee	Kanapee	18	cognate_early_stress	Kanister	1	-1	0	1,82	0,1	2	0	0	2	0	0	2	1	1	1	0	1	2	0	0	2	0	0	1	0	0	2	0	0	2	0	0	2	0	0	2	0	0		0	0		0	0		0	0		0	0	1	1	1	1	0	0
+Kanister – Kanapee	Kanister	60	cognate_same	Kanapee	1	0	1	1,91	0,91	2	1	0	2	1	0	2	1	1	1	0	1	2	1	0	2	1	0	2	1	0	2	1	0	2	1	0	2	1	0	2	1	0		1	0		1	0		1	0		1	0	1	1	1	1	1	1
+Kanone – Kanada	Kanada	15	cognate_early_stress	Kanone	1	-1	0	2	0,64	2	1	1	2	1	1	2	1	1	2	0	0	2	1	1	2	1	1	2	0	0	2	0	0	2	0	0	2	1	1	2	1	1		1	1		0	0		1	1		0	0	1	1	1	1	1	1
+Kanone – Kanada	Kanone	61	non-cognate	Kanada	0		-1	1,73	1	2	1	1	2	1	1	1	1	1	1	1	0	2	1	1	2	1	1	2	1	0	2	1	1	2	1	0	2	1	1	1	1	1		1	1		1	0		1	1		1	0	1	1	1	1	1	1
+Karotte – Karitas	Karotte	27	non-cognate	Karitas	0		-1	1,82	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	1	2	1	0	0	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	0		1	1		1	1		1	0	1	1	1	1	1	1
+Karotte – Karitas	Karitas	48	non-cognate	Karotte	0		-1	2	0,82	2	1	1	2	1	1	2	1	1	2	0	0	2	1	1	2	0	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1		0	0		1	1		1	1		0	0	1	1	1	1	1	1
+Kaverne – Kaviar	Kaverne	31	cognate_same	Kaviar	1	0	1	0,64	0,91	0	1	0	2	1	1	1	1	1	1	1	0	1	0	0	0	1	1	0	1	1	1	1	0	0	1	1	1	1	1	0	1	1		1	0		1	1		1	1		1	1	1	1	1	1	1	1
+Kaverne – Kaviar	Kaviar	52	cognate_early_stress	Kaverne	1	-2	0	1,91	0,73	2	0	0	2	1	1	2	1	1	1	0	0	2	1	0	2	1	1	2	1	1	2	0	0	2	1	1	2	1	1	2	1	1		0	0		1	1		1	1		1	1	1	1	1	1	1	1
+Kolumne – Kolibri	Kolumne	24	cognate_same	Kolibri	1	0	1	1,28	1	2	1	0	2	1	0	2	1	0	1	1	0	2	1	0	0	1	0	1	1	0	2	1	0	0	1	0	0	1	0	2	1	0		1	0		1	0		1	0		1	0	1	0	1	1	1	1
+Kolumne – Kolibri	Kolibri	49	cognate_early_stress	Kolumne	1	-1	0	2	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0	2	0	0		0	0		0	0		0	0		0	0	0	0	1	1	0	0
+Libelle – Libero	Libelle	2	non-cognate	Libero	0		-1	0,82	1	1	1	0	0	1	1	0	1	1	1	1	0	1	1	1	1	1	1	0	1	0	2	1	0	2	1	0	1	1	1	0	1	0		1	1		1	1		1	1		1	1	1	1	1	1	1	0
+Libelle – Libero	Libero	42	cognate_same	Libelle	1	0	1	1,37	0,46	1	0	0	1	1	1	2	1	1	1	0	0	2	1	1	1	1	1	1	0	0	2	0	1	2	0	0	1	1	1	1	0	0		1	1		1	1		1	1		1	1	1	1	1	1	0	0
+Manege – Manitu	Manege	29	cognate_same	Manitu	1	0	1	1,37	0,91	2	1	1	2	1	0	2	1	1	2	1	0	2	1	0	2	1	1	0	1	1	1	0	1	0	1	0	0	1	0	2	1	0		1	0		1	1		1	1		1	0	1	1	1	1	1	0
+Manege – Manitu	Manitu	51	cognate_early_stress	Manege	1	-2	0	0,19	0,37	0	1	1	0	0	0	0	1	1	0	0	0	0	0	0	0	1	1	1	1	1	1	0	1	0	0	0	0	0	0	0	0	0		0	0		1	1		1	1		0	0	1	1	1	1	1	1
+Marille – Marathon	Marille	32	non-cognate	Marathon	0		-1	0,82	0,91	2	1	0	2	1	1	0	1	1	1	1	0	2	1	1	0	1	0	0	1	1	1	1	1	0	1	1	1	1	0	0	0	1		1	0		1	0		1	1		1	1	1	1	1	1	1	1
+Marille – Marathon	Marathon	36	cognate_early_stress	Marille	1	-2	0	2	0,55	2	0	0	2	1	1	2	1	1	2	0	0	2	1	1	2	0	0	2	1	1	2	1	1	2	1	1	2	0	0	2	0	1		0	0		0	0		1	1		1	1	1	1	1	1	1	1
+Markise – Magier	Magier	11	cognate_same	Markise	1	0	1	0,91	0,28	0	1	1	2	0	0	2	0	0	1	0	0	1	0	0	0	0	0	0	1	1	1	0	0	0	1	1	2	0	0	1	0	0		0	0		0	0		0	0		0	0	0	0	0	0	1	1
+Markise – Magier	Markise	21	cognate_same	Magier	1	0	1	1,82	1	2	1	1	2	1	0	2	1	0	2	1	0	2	1	0	2	1	0	0	1	1	2	1	0	2	1	1	2	1	0	2	1	0		1	0		1	0		1	0		1	0	1	0	1	0	1	1
+Marotte – Marrakesch	Marotte	19	non-cognate	Marrakesch	0		-1	0,55	1	2	1	0	0	1	0	0	1	1	0	1	0	2	1	1	0	1	0	1	1	0	0	1	1	0	1	0	1	1	0	0	1	0		1	1		1	1		1	1		1	1	1	0	1	1	1	1
+Marotte – Marrakesch	Marrakesch	46	cognate_early_stress	Marotte	1	-2	0	2	0,28	2	0	0	2	0	0	2	1	1	2	0	0	2	1	1	2	0	0	2	0	0	2	1	1	2	0	0	2	0	0	2	0	0		1	1		1	1		1	1		1	1	0	0	1	1	1	1
+Medaille – Medikus	Medaille	35	cognate_same	Medikus	1	0	1	1,73	0,91	1	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	0	1	1	2	1	1	2	1	1	2	1	1	2	0	0		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Medaille – Medikus	Medikus	40	cognate_same	Medaille	1	0	1	1,55	1	1	1	1	1	1	1	2	1	1	2	1	1	2	1	1	0	1	1	1	1	1	2	1	1	2	1	1	2	1	1	2	1	0		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Monokel – Monitor	Monokel	38	cognate_same	Monitor	1	0	1	1,91	0,82	2	1	1	2	0	0	2	1	1	1	1	0	2	1	1	2	1	0	2	1	1	2	0	0	2	1	0	2	1	0	2	1	0		1	1		1	1		0	0		0	0	1	1	1	1	1	1
+Monokel – Monitor	Monitor	55	cognate_early_stress	Monokel	1	-2	0	2	0,55	2	1	1	2	1	0	2	1	1	2	0	0	2	1	1	2	0	0	2	1	1	2	1	0	2	0	0	2	0	0	2	0	0		1	1		1	1		1	0		1	0	1	1	1	1	1	1
+Panade – Panama	Panama	17	cognate_early_stress	Panade	1	-1	0	2	0,37	2	0	0	2	1	1	2	0	0	2	1	1	2	1	1	2	0	0	2	1	1	2	0	0	2	0	0	2	0	0	2	0	0		0	0		0	0		0	0		0	0	0	0	1	1	1	1
+Panade – Panama	Panade	64	cognate_same	Panama	1	0	1	0,37	1	0	1	0	0	1	1	0	1	0	0	1	1	2	1	1	0	1	0	0	1	1	1	1	0	0	1	0	1	1	0	0	1	0		1	0		1	0		1	0		1	0	1	0	1	1	1	1
+Posaune – Positiv	Positiv	26	cognate_early_stress	Posaune	1	-2	0	2	0,37	2	0	0	2	1	1	2	1	0	2	0	0	2	1	1	2	0	0	2	1	1	2	0	1	2	0	0	2	0	1	2	0	0		0	0		1	1		1	1		0	0	1	1	1	1	1	1
+Posaune – Positiv	Posaune	37	non-cognate	Positiv	0		-1	0,37	0,82	0	1	0	0	1	1	0	0	0	0	1	0	0	1	1	2	1	0	0	1	1	2	1	0	0	1	0	0	0	1	0	1	0		0	0		1	1		1	1		1	0	1	1	1	1	1	1
+Prämisse – Prämie	Prämisse	4	cognate_same	Prämie	1	0	1	0,91	0,91	2	1	0	2	1	1	0	1	1	2	1	1	2	1	1	0	1	1	0	0	0	1	1	0	0	1	1	0	1	1	1	1	1		1	0		0	0		1	0		1	0	1	1	1	1	1	1
+Prämisse – Prämie	Prämie	25	cognate_same	Prämisse	1	0	1	2	0,82	2	0	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	0	2	0	0	2	1	1	2	1	1	2	1	1		0	0		1	0		0	0		0	0	1	1	1	1	1	1
+Radieschen – Radius	Radieschen	3	cognate_same	Radius	1	0	1	1,37	0,73	2	1	1	1	1	1	1	1	1	2	1	1	2	1	1	0	0	0	0	0	0	2	1	0	2	1	1	2	1	1	1	0	0		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Radieschen – Radius	Radius	14	cognate_same	Radieschen	1	0	1	2	0,91	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	0	2	0	0	2	1	1	2	1	1	2	1	0		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Spirale – Spiritus	Spirale	7	cognate_same	Spiritus	1	0	1	2	1	2	1	0	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Spirale – Spiritus	Spiritus	50	non-cognate	Spirale	0		-1	1,73	0,91	2	0	0	2	1	1	2	1	1	1	1	1	2	1	1	1	1	1	1	1	1	2	1	1	2	1	1	2	1	1	2	1	1		1	1		1	1		1	1		1	1	1	1	1	1	1	1
+Statistik – Statue	Statue	33	cognate_same	Statistik	1	0	1	2	0,73	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	0	0	2	0	0	2	0	0	2	1	1	2	1	1		1	1		1	1		0	0		0	0	1	1	1	1	1	1
+Statistik – Statue	Statistik	54	cognate_same	Statue	1	0	1	2	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	1	2	1	0	2	1	0	2	1	0	2	1	1	2	1	1		1	1		1	1		1	0		1	0	1	1	1	1	1	1

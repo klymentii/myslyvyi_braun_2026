@@ -1,0 +1,14 @@
+vp	type	gender	age	region	dialgroup	dialect	l1	musical	previousexp	proficiency
+1	2	f	21	kyiv	north	centralpolesian	ua.ru	no	yes	c1
+2	2	m	24	center	south-eastern	middlednieprian	ua.ru	no	no	c1
+3	2	f	22	center	south-eastern	steppe	ua.ru	yes	no	c1
+4	2	m	23	kyiv	north	centralpolesian	3spr	no	no	b2
+5	1	f	24	center	south-eastern	middlednieprian	ua	yes	yes	c1
+6	1	f	24	east	south-eastern	slobozhan	ru	no	yes	b1
+7	1	f	23	west	south-western	upperdniestrian	ua.ru	no	no	b2
+8	2	m	24	kyiv	north	centralpolesian	ua	yes	no	b1
+9	1	f	19	kyiv	north	centralpolesian	ua.ru	no	no	c1
+10	2	f	36	west	south-western	podillian	ua.ru	yes	no	c1
+11	2	f	53	kyiv	north	centralpolesian	ua.ru	yes	no	b1
+12	2	f	49	east	south-eastern	steppe	ua.ru	yes	no	c2
+13	2	f	46	east	south-eastern	steppe	ua.ru	Yes	no	C1
