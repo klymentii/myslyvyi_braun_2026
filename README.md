@@ -22,21 +22,21 @@ The study consists of two experiments:
 ```
 .
 ├── exp1/
-│   ├── data_exp1_durint_controls.tsv
-│   ├── data_exp1_durint.tsv
-│   ├── data_exp1_f0.tsv
-│   ├── exp1.Rmd
-│   ├── exp1.html
-│   ├── model1_ml_acf.rds
-│   └── plots/
+│   ├── data_exp1_durint_controls.tsv (data of German participants for the analysis of duration and intensity)
+│   ├── data_exp1_durint.tsv (data of Ukrainian participants for the analysis of duration and intensity)
+│   ├── data_exp1_f0.tsv (data for F0 analysis, all participants)
+│   ├── exp1.Rmd (R script for Experiment 1)
+│   ├── exp1.html (executed R script)
+│   ├── model1_ml_acf.rds (GAMM output: model of F0)
+│   └── plots/ (figures)
 │
 ├── exp2/
-│   ├── exp2.Rmd
-│   ├── exp2.html
-│   ├── fixdurations.txt
-│   ├── metad_learner_types.tsv
-│   ├── metad.tsv
-│   └── plots/
+│   ├── exp2.Rmd (R script for Experiment 2)
+│   ├── exp2.html (executed R script)
+│   ├── fixdurations.txt (fixation data)
+│   ├── metad_learner_types.tsv (metadata - subjects)
+│   ├── metad.tsv (metadata - items)
+│   └── plots/ (figures)
 ```
 
 ---
