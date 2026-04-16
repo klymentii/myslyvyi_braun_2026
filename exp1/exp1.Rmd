@@ -1,0 +1,640 @@
+---
+title: "Statistical analysis for Myslyvyi & Braun (2026), Experiment 1"
+date: April 2026
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    number_sections: true
+authors: Klymentii Myslyvyi, Bettina Braun
+---
+
+Experiment 1 examines the role of vowel duration, intensity, and F0 in marking stress and focus in L1 Ukrainian and in Ukrainian learners of German. Furthermore, it compares the productions of Ukrainian learners of German with those of a small group of German native speakers. Participants produced trisyllabic words with one of the two metrical patterns (SWW or WSW) as a response in a question-answer pair. The question elicited narrow focus on the target word (focused condition) or on the verb (unfocused condition). SWW and WSW were chosen to avoid effects of pre-boundary lengthening (Shattuck-Hufnagel & Turk, 1998).
+
+# Preprocessing
+
+Load libraries.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(broom)
+library(lme4)
+library(readr)
+library(emmeans)
+library(dplyr)
+library(performance)
+library(patchwork)
+library(cowplot)
+library(ggeffects)
+library(mgcv)
+library(itsadug)
+library(car)
+library(scales)
+library(ggplot2)
+```
+
+Load the dataset for duration and intensity.
+
+```{r, message=FALSE}
+data_merged_unfiltered <- read_tsv("data_exp1_durint.tsv") 
+```
+
+Get the number of participants.
+```{r}
+length(unique(data_merged_unfiltered$participant))
+```
+\
+Exclude segmental mispronunciations, wrong allocation of lexical stress, or sentence accent (previously annotated in Praat on the Comments tier).
+```{r}
+data_merged <- data_merged_unfiltered %>% filter(!comments %in% c("int?", "fail"))
+```
+\
+Compute Ukrainian learners' error rates (100% - ratio reduced dataset (after exclusion of datapoints) / full dataset): overall, in Ukrainian, in German.
+```{r}
+error_table <- data.frame(
+  Language = c("Overall", "Ukrainian", "German"),
+  ErrorRate = c(
+    percent(1 - nrow(data_merged) / nrow(data_merged_unfiltered)),
+    percent(1 - nrow(data_merged[data_merged$language == "ua", ]) /
+        nrow(data_merged_unfiltered[data_merged_unfiltered$language == "ua", ])),
+    percent(1 - nrow(data_merged[data_merged$language == "de", ]) /
+        nrow(data_merged_unfiltered[data_merged_unfiltered$language == "de", ]))
+  )
+)
+
+error_table
+```
+\
+Turn to factors and relevel.
+```{r}
+data_merged$participant <- as.factor(data_merged$participant)
+data_merged$focus <- as.factor(data_merged$focus)
+data_merged$stress <- as.factor(data_merged$stress)
+data_merged$language <- as.factor(data_merged$language)
+data_merged$word <- as.factor(data_merged$word)
+
+data_merged$focus <- relevel(data_merged$focus, ref = "unfocused")
+data_merged$stress <- relevel(data_merged$stress, ref = "SWW")
+data_merged$language <- relevel(data_merged$language, ref = "ua")
+```
+\
+Load the dataset with native German speaker's productions and exclude mispronunciations (as described above for Ukrainian learners).
+```{r, message=FALSE}
+l1_unfiltered <- read_tsv("data_exp1_durint_controls.tsv")
+l1 <- l1_unfiltered %>% filter(!comments %in% c("int?", "fail"))
+```
+\
+Compute error rates for L1 German participants.
+```{r}
+percent(1-nrow(l1)/nrow(l1_unfiltered))
+```
+\
+Turn to factors and relevel.
+```{r}
+l1$participant <- as.factor(l1$participant)
+l1$focus <- as.factor(l1$focus)
+l1$stress <- as.factor(l1$stress)
+l1$language <- as.factor(l1$language)
+l1$word <- as.factor(l1$word)
+
+l1$focus <- relevel(l1$focus, ref = "unfocused")
+l1$stress <- relevel(l1$stress, ref = "SWW")
+```
+
+Create subsets for Ukrainian participants only and for German L2+L1
+```{r}
+data_ua <- data_merged %>% filter(language!="mono")
+data_de <- bind_rows(data_merged[data_merged$language=="de",], l1)
+```
+
+# Duration
+## L1 Ukrainian vs L2 German
+
+We analyze Duration and Intensity using linear mixed-effects modelimplemented in the lme4 package in R (Bates et al., 2015), accounting for both fixed (e.g. Stress, Focus, Language) and random (e.g. Subject, Item) effects. These models assume a normal (Gaussian) distribution of the dependent variable.
+
+First, plot the distribution of the dependent variable (Duration). We see a right skew, therefore we log-transform Duration using the log10() function and check the distribution again.
+
+```{r}
+hist(data_ua$duration) # right skew
+data_ua$duration_log <- log10(data_ua$duration)
+hist(data_ua$duration_log) # rougly normally distributed
+```
+\
+The full model includes Stress, Focus, Vowel and Language as main effects and in interactions.
+
+```{r}
+m_duration0 <- lmer(duration_log ~ stress * focus * language + (1|vowel/word) + (1+stress*language|participant), data = data_ua, REML = FALSE)
+Anova(m_duration0, type = "III")
+```
+
+The model needs to be simplified. We remove non-significant terms: a main effect of Language and a three-way interaction, and fit a reduced model.
+
+```{r}
+m_duration1 <- lmer(duration_log ~ stress * focus + (1|vowel/word) + (1+stress*language|participant), data = data_ua, REML = FALSE)
+Anova(m_duration1, type = "III")
+```
+
+Compare two models. The three-way interaction does not result in a better fit so we select the reduced model m_duration1.
+
+```{r}
+anova(m_duration0, m_duration1)
+```
+
+Check if residuals are normally distributed.
+
+```{r}
+qqnorm(resid(m_duration1)) # OK
+```
+
+This is our final model.
+
+```{r}
+m_duration1 -> model_duration_final
+summary(model_duration_final)
+```
+
+Post-hoc comparisons:
+
+```{r}
+emmeans(model_duration_final, pairwise ~ stress | focus)
+```
+Back-transform duration to msec and compute ratios (stressed vs unstessed) per focus condition.
+
+```{r}
+em_dur_stress <- as.data.frame(emmeans(model_duration_final, ~ stress | focus)) %>%
+  mutate(back = 10^emmean) # back transform to numeric scale (msec)
+
+ratio_table <- em_dur_stress %>%
+  select(focus, stress, back) %>%
+  tidyr::pivot_wider(names_from = stress, values_from = back) %>%
+  mutate(ratio_WSW_SWW = WSW / SWW) # compute ratios
+
+ratio_table
+```
+
+Plot the final model.
+```{r}
+mydf <- ggpredict(
+  model_duration_final,
+  terms = c("stress", "focus", "language")
+)
+
+mydf$stress        <- mydf$x
+mydf$focus         <- mydf$group
+mydf$language      <- mydf$facet
+mydf$pred_duration <- mydf$predicted
+```
+
+```{r fig2, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+duration <- ggplot(
+  mydf,
+  aes(x = stress, y = pred_duration, colour = focus)
+) +
+  geom_pointrange(
+    aes(ymin = conf.low, ymax = conf.high),
+    position = position_dodge(width = 0.3)
+  ) +
+  facet_wrap(
+    ~ language,
+    labeller = as_labeller(c(
+      "ua" = "L1 Ukrainian",
+      "de" = "L2 German"
+    ))
+  ) +
+  theme_bw() +
+  ylab("Predicted duration (log-transformed)") +
+  xlab("Stress condition") +
+  scale_x_discrete(
+    labels = c(
+      "SWW" = "unstressed",
+      "WSW" = "stressed"
+    )
+  ) +
+  scale_color_manual(
+    values = c("focused" = "black", "unfocused" = "darkgray"),
+    limits = c("focused", "unfocused"),
+    name = "Focus condition"
+  ) +
+  theme(text = element_text(size = 14)) +
+  ggtitle("Predicted duration of the second vowel")
+duration
+```
+
+## L2 German vs L1 German
+
+Log-transform duration in the L1 German subset because it is right-skewed.
+```{r}
+hist(data_de$duration) # right skew
+data_de$duration_log <- log10(data_de$duration)
+hist(data_de$duration_log) # roughly normal 
+```
+\
+Rename the column for convenience. Group is the variable representing productions of Ukrainian learners in two languages (Ukrainian, German) and L1 German productions.
+```{r}
+data_de$group <- data_de$language
+```
+
+Fit the full lmer model with Stress, Group, Focus as main effects and in two- and three-way interactions.
+```{r}
+m_duration_mono0 <- lmer(duration_log ~ stress * group * focus + (1 |vowel/word) + (1+focus|participant), data = data_de)
+Anova(m_duration_mono0, type = "III") 
+```
+
+We remove the non-significant three-way interaction but test two-way interactions.
+
+```{r}
+m_duration_mono00 <- lmer(duration_log ~ (stress + group + focus)^2 + (1 |vowel/word) + (1+focus|participant), data = data_de)
+Anova(m_duration_mono00, type = "III") 
+```
+
+Group is significant as a main effect (p = .042) but does not interact with any predictors. We remove interaction terms with Group.
+
+```{r}
+m_duration_group  <- lmer(duration_log ~ stress * focus + group + (1|vowel/word) + (1+focus|participant), data = data_de)
+Anova(m_duration_group, type = "III") 
+```
+
+The main effect of Group is no longer significant, potentially suggesting Type I error in the previous model (m_duration_mono00). To check this, we fit a model without Group.
+
+```{r}
+m_duration_mono  <- lmer(duration_log ~ stress * focus + (1|vowel/word) + (1|participant), data = data_de)
+```
+
+We compare models with and without Group. The comparison shows that Group does not improve fit, so we do not include it. This lack of effect (Group was not significant as a main effect, nor in two- and three-way interactions) suggests no significant differences between Ukrainian learners and L1 German speakers.
+```{r}
+anova(m_duration_mono, m_duration_group)
+```
+This is our final model. 
+
+```{r}
+summary(m_duration_mono)
+```
+
+# Intensity
+
+Full model includes Stress, Focus, Vowel and Language as main effects and in interactions.
+
+```{r}
+m_intensity0 <- lmer(intensity ~ stress * language * focus + (1|vowel/word) + (1+stress|participant), data = data_ua, REML = FALSE)
+Anova(m_intensity0, type = "III")
+```
+\
+We remove the non-significant three-way interaction but test two-way interactions.
+```{r}
+m_intensity00 <- lmer(intensity ~ (stress + language + focus) ^2 + (1|vowel/word) + (1 + stress|participant), data = data_ua, REML = FALSE)
+Anova(m_intensity00, type = "III")
+```
+\
+We compare two models. The simpler model (m_intensity00) has lower AIC and BIC, so we prefer it over m_intensity0.
+```{r}
+anova(m_intensity0, m_intensity00)
+```
+\
+We remove the interaction term Stress x Language because it was not significant.
+```{r}
+m_intensity1 <- lmer(intensity ~ (stress + language) * focus + (1|vowel/word) + (1 + stress|participant), data = data_ua, REML = FALSE)
+Anova(m_intensity1, type = "III")
+summary(m_intensity1)
+```
+\
+Compare the models with and without interaction as a sanity check. As expected, the added interaction in m_intensity00 does not improve fit so we choose the simpler model, i.e. m_intensity1.
+```{r}
+anova(m_intensity00, m_intensity1)
+```
+\
+Check if residuals are normally distributed.
+```{r}
+qqnorm(resid(m_intensity1)) # OK
+```
+\
+This is our final model:
+```{r}
+m_intensity1 -> model_intensity_final
+summary(model_intensity_final)
+```
+\
+Post-hoc comparisons:
+```{r}
+em_int_stress <- as.data.frame(emmeans(model_intensity_final, ~ focus | stress + language))
+
+emmeans(model_intensity_final, pairwise ~ stress | focus + language)
+emmeans(model_intensity_final, pairwise ~ focus | language)
+```
+
+Compute ratios of stressed versus unstressed vowels per Language and Focus condition.
+```{r}
+em_int_stress <- as.data.frame(emmeans(model_intensity_final, ~ stress | language * focus))
+
+ratio_table <- em_int_stress %>%
+  select(language, focus, stress, emmean) %>%
+  pivot_wider(names_from = stress, values_from = emmean) %>%
+  mutate(ratio_WSW_SWW = WSW / SWW)
+
+ratio_table
+```
+
+Plot the final model.
+```{r}
+mydf_intensity <- ggpredict(model_intensity_final, terms = c("stress", "focus", "language"))
+
+mydf_intensity$stress <- mydf_intensity$x
+mydf_intensity$pred_intensity <- mydf_intensity$predicted
+mydf_intensity$focus <- mydf_intensity$group
+mydf_intensity$language <- mydf_intensity$facet
+
+language_labels <- c("ua" = "L1 Ukrainian", "de" = "L2 German")
+
+mydf_intensity$focus <- factor(
+  mydf_intensity$focus,
+  levels = c("focused", "unfocused")
+)
+```
+
+```{r fig3, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+plot_intensity <- ggplot(mydf_intensity, aes(x = stress, y = pred_intensity, colour = focus)) +
+  geom_pointrange(aes(ymin = conf.low, ymax = conf.high),
+                  position = position_dodge(width = 0.3)) +
+  facet_wrap(~language, labeller = labeller(language = language_labels)) + 
+  theme_bw() +
+  ylab("Predicted intensity (dB)") +
+  xlab("Stress condition") +
+  scale_color_manual(values = c("black", "darkgray"),
+                     name = "Focus condition") +
+  theme(text = element_text(size = 14)) + scale_x_discrete(
+    labels = c(
+      "SWW" = "unstressed",
+      "WSW" = "stressed"
+    )
+  ) +
+  ggtitle("Predicted intensity of the second vowel")
+
+plot_intensity
+```
+
+## L2 learners vs German natives
+Plot the full lmer model with a three-way interaction.
+```{r}
+m_intensity_mono0 <- lmer(intensity ~ stress * focus * group + (1 |vowel/word), data = data_de)
+```
+\
+We get boundary (singular) fit: see help('isSingular') so we remove nesting.
+```{r}
+m_intensity_mono00 <- lmer(intensity ~ stress * focus*group + (1 |word), data = data_de)
+Anova(m_intensity_mono00, type = "III")
+```
+\
+We remove the non-significant three-way interaction and add by-subject random slopes for Focus.
+```{r}
+m_intensity_mono000 <- lmer(intensity ~ (stress + focus + group) ^2 + (1 |word) + (1 + focus | participant), data = data_de)
+Anova(m_intensity_mono000, type = "III")
+```
+\
+We remove the non-significant effect of Group and non-significant interactions with Group.
+```{r}
+m_intensity_mono <- lmer(intensity ~ stress + focus + (1 |word) + (1 + focus| participant), data = data_de)
+Anova(m_intensity_mono, type = "III")
+```
+\
+We compare the simpler model and the interaction model. The effect of Group (and interactions with group) do not improve fit, suggesting no significant differences between Ukrainian learners and L1 German speakers.
+```{r}
+anova(m_intensity_mono, m_intensity_mono000)
+```
+
+# F0
+Since F0 contours do not develop linearly over time, time-insensitive measures such as minimum, mean, or maximum F0 values may obscure relevant prosodic patterns (Chuang et al., 2021). Therefore, generalized additive mixed models (GAMMs; Hastie & Tibshirani, 1986; Wood, 2017) were used to analyze the differences between F0 contours in different conditions. By modeling non-linear dependencies between the outcome variable (F0) and predictors (Stress, Learner’s Type) over time through smooth functions, GAMMs enable direct comparison of contour shapes using a pre-specified number of base functions.
+\
+\
+Load the German F0 data.
+```{r, message=FALSE}
+data <- read_tsv("data_exp1_f0.tsv")
+```
+\
+Turn to factors.
+```{r}
+data$Normtime <- data$Ntime
+data$participant <- as.factor(data$participant)
+data$Normtime <- as.numeric(data$Normtime)
+data$stress <- as.factor(data$stress)
+data$word <- as.factor(data$word)
+data$focus <- as.factor(data$focus)
+data$type <- as.factor(data$type)
+```
+
+Set an interaction variable Stresstype (factor) representing Stress x Type and check the levels: L1 represents German native speakers, like_ua represents Type-1 learners (who use F0 more like in Ukrainian), like_de represents Type-2 learners (who use F0 more like German natives).
+```{r}
+data$stresstype = interaction(data$stress, data$type)
+levels(data$stresstype)
+```
+
+Fit a null model without an interaction variable.
+```{r}
+nullmodel <- bam(z1 ~ stress + type +s(Normtime, participant, bs="fs", m=1)+s(Normtime, word, bs="fs", m=1), data=data, method="ML")
+```
+
+Refit the null model, add random slopes.
+```{r}
+nullmodel_slopes <- bam(z1 ~ stress + type + s(Normtime, participant, bs = "fs", m = 1) + s(Normtime, participant, by = stress, bs = "re", m = 1) + s(Normtime, word, bs = "fs", m = 1) + s(Normtime, word, by = type, bs = "re", m = 1), data = data, method = "ML")
+```
+
+Compare null models with and without random slopes. We see that random slopes improve fit so we keep them.
+```{r}
+compareML(nullmodel,nullmodel_slopes)
+```
+
+Fit an interaction model (with Stresstype) with random slopes.
+```{r}
+# interaction model with random slopes
+model1_slopes <- bam(
+  z1 ~ stresstype +
+    s(Normtime, participant, bs = "fs", m = 1) +
+    s(Normtime, participant, by = stress, bs = "re", m = 1) +
+    s(Normtime, word, bs = "fs", m = 1) +
+    s(Normtime, word, by = type, bs = "re", m = 1),
+  data = data,
+  method = "ML"
+)
+```
+
+Compare the interaction model with the null model (with random slopes). As expected, the interaction model improves fit significantly, so we keep the interaction.
+```{r}
+compareML(nullmodel_slopes, model1_slopes)
+```
+
+We fit the model with the number of basis function k=20. This model will be used to get the autocorrelation value (rho).
+```{r}
+model1_ml<-bam(z1 ~ stresstype + s(Normtime, by=stresstype, k =20) +s(Normtime, participant, bs="fs", m=1)+s(Normtime, word, bs="fs", m=1) + s(Normtime, participant, by = stress, bs = "re", m = 1) + s(Normtime, word, by = type, bs = "re", m = 1), data=data, method="ML")
+
+summary(model1_ml) 
+```
+
+Get autocorrelation.
+```{r}
+r_acf <- acf_resid(model1_ml)
+rhoval = r_acf[2]
+rhoval
+```
+
+Create an event variable (combining subject and item as a unique identifier) and logical start_event variable (TRUE for start of event, FALSE in all other cases, necessary for autocorrelation in GAMMs), see Wieling (2018).
+```{r}
+data$event = interaction(data$participant, data$word)
+
+data$start_event <- "FALSE"
+data$start_event[data$Normtime == 1] <- "TRUE"
+data$start_event = as.logical(data$start_event)
+```
+
+Refit the model with autocorrelation.
+```{r}
+#model1_ml_acf<-bam(z1 ~ stresstype + s(Normtime, by=stresstype, k =20) +s(Normtime, participant, bs="fs", m=1)+s(Normtime, word, bs="fs", m=1) + s(Normtime, participant, by = stress, bs = "re", m = 1) + s(Normtime, word, by = type, bs = "re", m = 1), data=data, method="ML", rho = rhoval, AR.start = data$start_event, family = "scat")
+```
+
+Check if k is sufficient and increase if necessary. 
+```{r}
+#gam.check(model1_ml_acf) # no need to increase k
+```
+
+Save the model to save computation time.
+```{r}
+#saveRDS(model1_ml_acf, file = "model1_ml_acf.rds")
+```
+
+Load the saved model.
+```{r}
+model1_ml_acf <- readRDS("model1_ml_acf.rds")
+```
+
+This is the summary of the final model:
+```{r}
+s <- summary(model1_ml_acf)
+```
+
+Difference curves:
+```{r fig6a, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+#SWW type 1 vs SWW L1 German
+plot_diff(
+  model1_ml_acf,
+  view = "Normtime",
+  comp = list(stresstype = c("SWW.like_ua", "SWW.L1")),
+  ylim = c(-2, 2),
+  main = "Type 1 vs. L1 German (SWW focused)",
+  ylab = "Estimated difference in SD",
+  print.summary = FALSE,
+  cex.main = 2.5,
+)
+```
+
+```{r fig6b, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+# WSW Type 1 vs L1 German
+plot_diff(
+  model1_ml_acf,
+  view = "Normtime",
+  comp = list(stresstype = c("WSW.like_ua", "WSW.L1")),
+  ylim = c(-2, 2),
+  main = "Type 1 vs. L1 German (WSW focused)",
+  ylab = "Estimated difference in SD",
+  print.summary = FALSE,
+  cex.main = 2.5,
+)
+```
+
+
+```{r fig6c, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+# SWW Type 2 vs L1
+plot_diff(
+  model1_ml_acf,
+  view = "Normtime",
+  comp = list(stresstype = c("SWW.like_de", "SWW.L1")),
+  ylim = c(-2, 2),
+  main = "Type 2 vs. L1 German (SWW focused)",
+  ylab = "Estimated difference in SD",
+  print.summary = FALSE,
+  cex.main = 2.5,
+)
+```
+
+
+```{r fig6d, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+# WSW Type 2 vs L1
+plot_diff(
+  model1_ml_acf,
+  view = "Normtime",
+  comp = list(stresstype = c("WSW.like_de", "WSW.L1")),
+  ylim = c(-2, 2),
+  main = "Type 2 vs. L1 German (WSW focused)",
+  ylab = "Estimated difference in SD",
+  print.summary = FALSE,
+  cex.main = 2.5,
+)
+```
+
+
+```{r fig6e, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+# SWW Type 2 vs Type 1
+plot_diff(
+  model1_ml_acf,
+  view = "Normtime",
+  comp = list(stresstype = c("SWW.like_de", "SWW.like_ua")),
+  ylim = c(-2, 2),
+  main = "Type 2 vs. Type 1 (SWW focused)",
+  ylab = "Estimated difference in SD",
+  print.summary = FALSE,
+  cex.main = 2.5,
+)
+```
+
+```{r fig6f, fig.width = 8, fig.heigth = 4, echo = TRUE, fig.path = "plots/", warning=FALSE}
+# WSW Type 2 vs Type 1
+plot_diff(
+  model1_ml_acf,
+  view = "Normtime",
+  comp = list(stresstype = c("WSW.like_de", "WSW.like_ua")),
+  ylim = c(-2, 2),
+  main = "Type 2 vs. Type 1 (WSW focused)",
+  ylab = "Estimated difference in SD",
+  print.summary = FALSE,
+  cex.main = 2.5,
+)
+```
+
+# Duration and Intensity: Type effects?
+Finally, we check if duration and intensity interact with Learner's Type.
+
+```{r}
+data_ua$type <- ifelse(data_ua$participant %in% c("06_4b", "07_1a", "10_1b", "14_3a"), "type1", "type2")
+```
+
+Specify the model for duration. We are specifically interested in interactions with Type and assume an interaction between Stress x Focus (as reported previously).
+```{r}
+m_duration_type0 <- lmer(duration_log ~ (stress + focus + type)^2 + (1|vowel/word) + (1+language+stress|participant), data = data_ua, REML = FALSE)
+Anova(m_duration_type0, type = "III")
+```
+Type was not significant as a main effect and did not interact with any predictors. We refit the model without Type.
+
+```{r}
+m_duration_type <- lmer(duration_log ~ stress*focus + (1|vowel/word) + (1+language+stress|participant), data = data_ua, REML = FALSE)
+```
+Compare the full and reduced models. The more complex model is not justified.
+```{r}
+anova(m_duration_type0, m_duration_type)
+```
+
+We repeat the same procedure for Intensity. The full model included three-way interactions.
+```{r}
+m_intensity_type0 <- lmer(intensity ~ (type + stress + language + focus)^3 + (1|vowel/word) + (1 + stress|participant), data = data_ua, REML = FALSE)
+Anova(m_intensity_type0, type = "III")
+```
+The reduced model included two-way interactions.
+```{r}
+m_intensity_type <- lmer(intensity ~ (type + stress + language + focus)^2 + (1|vowel/word) + (1+language|participant), data = data_ua, REML = FALSE)
+Anova(m_intensity_type, type = "III")
+```
+Type is not significant as a main effect, interacts with language, but, crucially, not with Stress or Focus. We remove non-signiciant effects from the model. We leave the effect Type because it is a part of a higher-order interaction.
+```{r}
+m_intensity_type_final <- lmer(intensity ~ type * language + language * focus + stress * focus + (1|vowel/word) + (1+language|participant), data = data_ua, REML = FALSE)
+Anova(m_intensity_type_final, type = "III")
+```
+We compare the models. The more complex model (where Type interacts with Stress and Focus) is not justified.
+```{r}
+anova(m_intensity_type, m_intensity_type_final)
+```
