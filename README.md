@@ -1,7 +1,8 @@
 ### Suplementary Materials 
-# How Do Ukrainian Learners of German Process Lexical Stress? Evidence from Production and Perception
+# How Do Ukrainian Learners of German Process Lexical Stress? Evidence from Production and Perception 
+doi: 10.1177/00238309261434240
 ### Klymentii Myslyvyi, Bettina Braun
-### doi: 10.1177/00238309261434240
+
 ### April, 2026
 
 
